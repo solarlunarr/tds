@@ -3,9 +3,10 @@ import math
 import Constants as c
 
 class Bullet(pg.sprite.Sprite):
-    def __init__(self, image, x, y, target_pos):
+    def __init__(self, image, x, y, target_pos, damage):
         pg.sprite.Sprite.__init__(self)
         self.image = image
+        self.damage = damage
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.pos = pg.math.Vector2(x, y)
