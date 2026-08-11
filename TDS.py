@@ -140,8 +140,13 @@ while run:
             game_outcome = 1
         #update groups
         enemy_group.update(world)
-        turret_group.update(enemy_group, world)
+        turret_group.update(enemy_group, world, bullet_image, bullet_group)
+        bullet_group.update()
 
+        #bullet hit detection
+        hits = pg.sprite.groupcollide(enemy_group, bullet_group, False, True)
+        for enemy, bullets_hit in hits.items():
+            enemy.health -= c.DAMAGE * len(bullets_hit)
         #Highlight selected turret
         if selected_turret:
             selected_turret.selected = True
@@ -151,6 +156,7 @@ while run:
     for turret in turret_group:
         turret.draw(screen)
 
+    bullet_group.draw(screen)
     display_data()
 
     if game_over == False:
