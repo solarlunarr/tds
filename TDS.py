@@ -9,6 +9,7 @@ from turret import Turret
 from enemy import Enemy
 from world import World
 from button import Button
+from turret_data import TURRET_DATA
 import sys
 import Constants as c
 
@@ -65,8 +66,8 @@ def draw_text(text, font, text_col, x, y):
 def display_data():
   #draw panel
   pg.draw.rect(screen, "black", (c.WIDTH, 0, c.SIDE_PANEL, c.HEIGHT))
-  pg.draw.rect(screen, "white", (c.WIDTH, 0, c.SIDE_PANEL, 400), 2)
-  screen.blit(scaled_logo, (c.WIDTH+80,600))
+  pg.draw.rect(screen, "white", (c.WIDTH, 0, c.SIDE_PANEL, 300), 2)
+  screen.blit(scaled_logo, (c.WIDTH+80,650))
   #display data
   draw_text("LEVEL: " + str(world.level), text_font, "grey100", c.WIDTH + 10, 10)
   draw_text("Health: " + str(world.health), text_font, "grey100", c.WIDTH + 10, 40)
@@ -103,6 +104,7 @@ def clear_selection():
     for turret in turret_group:
         turret.selected = False
 
+
 #create the world -----------------------------------------------------
 world = World(world_data, map_image)
 world.process_enemies()
@@ -116,7 +118,7 @@ bullet_group = pg.sprite.Group()
 #creates button--------------------------------------------------
 turret_button = Button(c.WIDTH + 30, 120, buy_turret_image, True)
 cancel_button = Button(c.WIDTH + 90, 200, cancel_image, True)
-upgrade_button = Button(c.WIDTH + 5, 200, upgrade_image, True )
+upgrade_button = Button(c.WIDTH + 5, 220, upgrade_image, True )
 start_button = Button(c.WIDTH+175, 10,start_image, True)
 restart_button = Button(550,500, restart_image, True)
 speed_button = Button(c.WIDTH+175, 40,speed_image, False) #require you to hold press it to fast forward
@@ -146,7 +148,8 @@ while run:
         #bullet hit detection
         hits = pg.sprite.groupcollide(enemy_group, bullet_group, False, True)
         for enemy, bullets_hit in hits.items():
-            enemy.health -= c.DAMAGE * len(bullets_hit)
+            for bullet in bullets_hit:
+                enemy.health -= bullet.damage * len(bullets_hit)
         #Highlight selected turret
         if selected_turret:
             selected_turret.selected = True
@@ -213,11 +216,13 @@ while run:
         if selected_turret:
             if selected_turret.upgrade_level < c.TURRET_LEVELS:
                 #draw the price of a upgrade
-                draw_text(str(c.UPGRADE_COST), text_font, "grey100", c.WIDTH + 110, 220)
+                draw_text(str(c.UPGRADE_COST), text_font, "grey100", c.WIDTH + 110, 240)
                 if upgrade_button.draw(screen):
                     if world.money >= c.BUY_COST:
                         selected_turret.upgrade()
                         world.money -= c.UPGRADE_COST
+
+                pg.draw.rect(screen, "grey", (1200,300,300,350))
 
     else:
         pg.draw.rect(screen, "blue", (400,300,500,300), border_radius = 30)
