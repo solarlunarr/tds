@@ -10,6 +10,7 @@ class Turret(pg.sprite.Sprite):
         self.upgrade_level = 1
         self.range = TURRET_DATA[self.upgrade_level - 1].get("range")
         self.cooldown = TURRET_DATA[self.upgrade_level - 1].get("cooldown")
+        self.dmg = TURRET_DATA[self.upgrade_level - 1].get("damage")
         self.last_shot = pg.time.get_ticks()
         self.selected = False
         self.target = None
@@ -63,7 +64,7 @@ class Turret(pg.sprite.Sprite):
                     self.target = enemy
                     self.angle = math.degrees(math.atan2(-y_dist, x_dist))
                     #spawn bullet
-                    new_bullet = Bullet(bullet_image, self.x, self.y, self.target.pos)
+                    new_bullet = Bullet(bullet_image, self.x, self.y, self.target.pos, self.dmg)
                     bullet_group.add(new_bullet)
                     self.last_shot = pg.time.get_ticks()
                     break
@@ -72,6 +73,7 @@ class Turret(pg.sprite.Sprite):
         self.upgrade_level +=1
         self.range = TURRET_DATA[self.upgrade_level - 1].get("range")
         self.cooldown = TURRET_DATA[self.upgrade_level - 1].get("cooldown")
+        self.dmg = TURRET_DATA[self.upgrade_level - 1].get("damage")
         #draw new transparent circle showing range
         self.range_image = pg.Surface((self.range * 2, self.range * 2))
         self.range_image.fill((0, 0, 0))
@@ -80,3 +82,5 @@ class Turret(pg.sprite.Sprite):
         self.range_image.set_alpha(100)
         self.range_rect = self.range_image.get_rect()
         self.range_rect.center = self.rect.center
+    
+    #def mechanic(self):
