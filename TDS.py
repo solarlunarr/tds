@@ -36,8 +36,8 @@ selected_turret = None
 #load images
 map_image = pg.image.load('tds/assets/Map1.png').convert_alpha()
 enemy_images = {
-    "weak": pg.image.load('tds/assets/enemy.png').convert_alpha(),
-    "strong": pg.image.load('tds/assets/enemy2.png').convert_alpha()
+    "weak": pg.image.load('tds/assets/slime.png').convert_alpha(),
+    "strong": pg.image.load('tds/assets/robloxlady.png').convert_alpha()
 }
 
 IceTurret = pg.image.load('tds/assets/IceTurret.png').convert_alpha()
@@ -118,7 +118,6 @@ bullet_group = pg.sprite.Group()
 #creates button--------------------------------------------------
 turret_button = Button(c.WIDTH + 30, 120, buy_turret_image, True)
 cancel_button = Button(c.WIDTH + 90, 200, cancel_image, True)
-upgrade_button = Button(c.WIDTH + 5, 220, upgrade_image, True )
 start_button = Button(c.WIDTH+175, 10,start_image, True)
 restart_button = Button(550,500, restart_image, True)
 speed_button = Button(c.WIDTH+175, 40,speed_image, False) #require you to hold press it to fast forward
@@ -216,13 +215,16 @@ while run:
         if selected_turret:
             if selected_turret.upgrade_level < c.TURRET_LEVELS:
                 #draw the price of a upgrade
-                draw_text(str(c.UPGRADE_COST), text_font, "grey100", c.WIDTH + 110, 240)
+                #draw the turret upgrade screen
+                pg.draw.rect(screen, "grey", (1200,300,300,350))
+                draw_text(str(c.UPGRADE_COST), text_font, "grey100", c.WIDTH + 120, 330)
+                upgrade_button = Button(c.WIDTH + 5, 320, upgrade_image, True) #upgrade button moved here so it is drawn above the grey background
                 if upgrade_button.draw(screen):
                     if world.money >= c.BUY_COST:
                         selected_turret.upgrade()
                         world.money -= c.UPGRADE_COST
 
-                pg.draw.rect(screen, "grey", (1200,300,300,350))
+
 
     else:
         pg.draw.rect(screen, "blue", (400,300,500,300), border_radius = 30)
