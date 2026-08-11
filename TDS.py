@@ -36,12 +36,12 @@ selected_turret = None
 #load images
 map_image = pg.image.load('tds/assets/Map1.png').convert_alpha()
 enemy_images = {
-    "weak": pg.image.load('tds/assets/enemy.png').convert_alpha(),
+    "weak": pg.image.load('tds/assets/robloxlady.png.png').convert_alpha(),
     "strong": pg.image.load('tds/assets/enemy2.png').convert_alpha()
 }
 
 IceTurret = pg.image.load('tds/assets/IceTurret.png').convert_alpha()
-buy_turret_image = pg.image.load('tds/assets/IceTurret.png').convert_alpha()
+buy_IceTurret_image = pg.image.load('tds/assets/IceTurret.png').convert_alpha()
 cancel_image = pg.image.load('tds/assets/Cancel.png').convert_alpha()
 upgrade_image = pg.image.load('tds/assets/Upgrade.png').convert_alpha()
 start_image = pg.image.load('tds/assets/Start.png').convert_alpha()
@@ -104,6 +104,50 @@ def clear_selection():
     for turret in turret_group:
         turret.selected = False
 
+#---------------------------------------------- drag mechanics
+class DraggableOperator:
+    def __init__(self, operator, x, y, font):
+        self.operator = operator
+        self.x = x
+        self.y = y
+        self.font = font
+        self.count = 0  # Starts with 0 available drops
+        self.image = None
+        self.rect = None
+        self.is_dragging = False
+        self.original_pos = (x, y)
+        self.update_image()
+
+    def update_image(self):
+        # Green background if available (>0), Dark Grey if locked (0)
+        bg_color = (34, 139, 34) if self.count > 0 else (60, 60, 60)
+        text_color = (255, 255, 255)
+        
+        text_str = f"({self.operator}) x{self.count}"
+        self.image = self.font.render(text_str, True, text_color, bg_color)
+        
+        if self.rect is None:
+            self.rect = self.image.get_rect(topleft=(self.x, self.y))
+        else:
+            if not self.is_dragging:
+                self.rect = self.image.get_rect(topleft=(self.x, self.y))
+
+    def add_drop(self):
+        self.count += 1
+        self.update_image()
+
+    def use_drop(self):
+        if self.count > 0:
+            self.count -= 1
+            self.update_image()
+
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
+
+    def snap_back(self):
+        self.rect.topleft = self.original_pos
+        self.update_image()
+
 
 #create the world -----------------------------------------------------
 world = World(world_data, map_image)
@@ -116,15 +160,23 @@ turret_group = pg.sprite.Group()
 enemy_group = pg.sprite.Group()
 bullet_group = pg.sprite.Group()
 #creates button--------------------------------------------------
-turret_button = Button(c.WIDTH + 30, 120, buy_turret_image, True)
+Iceturret_button = Button(c.WIDTH + 30, 120, buy_IceTurret_image, True)
 cancel_button = Button(c.WIDTH + 90, 200, cancel_image, True)
-upgrade_button = Button(c.WIDTH + 5, 220, upgrade_image, True )
 start_button = Button(c.WIDTH+175, 10,start_image, True)
 restart_button = Button(550,500, restart_image, True)
 speed_button = Button(c.WIDTH+175, 40,speed_image, False) #require you to hold press it to fast forward
 #GUI
 logo_image = pg.image.load('tds/assets/logo.webp').convert_alpha()
 scaled_logo = pg.transform.scale(logo_image, (125,200))
+
+
+math_operators = []
+op_symbols = ['+', '-', 'x', '/', '^']
+start_y = 300 
+
+for i, sym in enumerate(op_symbols):
+    new_op = DraggableOperator(sym, c.WIDTH + 30, start_y + (i * 50), text_font)
+    math_operators.append(new_op)
 
 run = True
 #game loop
@@ -197,7 +249,7 @@ while run:
         #draw the price of a turret
         draw_text(str(c.BUY_COST), text_font, "grey100", c.WIDTH + 35, 200)
 
-        if turret_button.draw(screen):
+        if Iceturret_button.draw(screen):
             placing_turret = True
 
         #if placing turret, then show cancel button as well
@@ -216,13 +268,16 @@ while run:
         if selected_turret:
             if selected_turret.upgrade_level < c.TURRET_LEVELS:
                 #draw the price of a upgrade
-                draw_text(str(c.UPGRADE_COST), text_font, "grey100", c.WIDTH + 110, 240)
+                #draw the turret upgrade screen
+                pg.draw.rect(screen, "grey", (1200,300,300,350))
+                draw_text(str(c.UPGRADE_COST), text_font, "grey100", c.WIDTH + 120, 330)
+                upgrade_button = Button(c.WIDTH + 5, 320, upgrade_image, True) #upgrade button moved here so it is drawn above the grey background
                 if upgrade_button.draw(screen):
                     if world.money >= c.BUY_COST:
                         selected_turret.upgrade()
                         world.money -= c.UPGRADE_COST
 
-                pg.draw.rect(screen, "grey", (1200,300,300,350))
+
 
     else:
         pg.draw.rect(screen, "blue", (400,300,500,300), border_radius = 30)
@@ -267,5 +322,51 @@ while run:
                 else:
                     selected_turret = select_turret(mouse_pos)
 
+ # Handle dragging position
+        if event.type == pg.MOUSEMOTION:
+            for op in math_operators:
+                if op.is_dragging:
+                    op.rect.center = event.pos
+
+        # Handle dropping operator onto turret
+        if event.type == pg.MOUSEBUTTONUP and event.button == 1:
+            for op in math_operators:
+                if op.is_dragging:
+                    op.is_dragging = False
+                    mouse_pos = pg.mouse.get_pos()
+                    mouse_tile_x = mouse_pos[0] // c.TILE_SIZE
+                    mouse_tile_y = mouse_pos[1] // c.TILE_SIZE 
+                    
+                    for turret in turret_group:
+                        if (mouse_tile_x, mouse_tile_y) == (turret.tile_x, turret.tile_y):
+                            turret.apply_math(op.operator)
+                            op.use_drop() # Deducts 1 drop & updates green state
+                            break
+                    op.snap_back()
+
+        # Handle mouse press
+        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+            mouse_pos = pg.mouse.get_pos()
+            
+            clicked_operator = False
+            for op in math_operators:
+                # ONLY allow dragging if count > 0!
+                if op.rect.collidepoint(mouse_pos) and op.count > 0:
+                    op.is_dragging = True
+                    clicked_operator = True
+                    break
+            
+            if not clicked_operator:
+                if mouse_pos[0] < c.WIDTH and mouse_pos[1] < c.HEIGHT:
+                    selected_turret = None
+                    clear_selection()
+                    if placing_turret == True:
+                        if world.money >= c.BUY_COST:
+                            create_turret(mouse_pos)
+                    else:
+                        selected_turret = select_turret(mouse_pos)
+
+    for op in math_operators:
+        op.draw(screen)
     #updates display -------------------------------------------------------
     pg.display.update()

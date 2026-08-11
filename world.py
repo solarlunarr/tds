@@ -42,7 +42,6 @@ class World():
             self.waypoints.append((temp_x, temp_y))
 
     def process_enemies(self):
-        
         if ENEMY_SPAWN_DATA[0] == 0:
             game_outcome = 1
         enemies = ENEMY_SPAWN_DATA[self.level - 1]

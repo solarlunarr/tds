@@ -25,7 +25,7 @@ ENEMY_SPAWN_DATA = [
 
 ENEMY_DATA = {
     "weak": {
-    "health": 1,
+    "health": 2,
     "speed": 3
     },
     "strong": {
