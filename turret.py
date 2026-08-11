@@ -44,12 +44,12 @@ class Turret(pg.sprite.Sprite):
         if self.selected:
             surface.blit(self.range_image, self.range_rect)
 
-    def update(self, enemy_group, world):
+    def update(self, enemy_group, world, bullet_image, bullet_group):
         if pg.time.get_ticks() - self.last_shot > (self.cooldown / world.game_speed):
-            self.pick_target(enemy_group)
+            self.pick_target(enemy_group, bullet_image, bullet_group)
 
 
-    def pick_target(self, enemy_group):
+    def pick_target(self, enemy_group, bullet_image, bullet_group):
       #find an enemy to target
         x_dist = 0
         y_dist = 0
@@ -62,9 +62,10 @@ class Turret(pg.sprite.Sprite):
                 if dist < self.range:
                     self.target = enemy
                     self.angle = math.degrees(math.atan2(-y_dist, x_dist))
-                
-                    #damage enemy
-                    self.target.health -= c.DAMAGE
+                    #spawn bullet
+                    new_bullet = Bullet(bullet_image, self.x, self.y, self.target.pos)
+                    bullet_group.add(new_bullet)
+                    self.last_shot = pg.time.get_ticks()
                     break
 
     def upgrade(self):
