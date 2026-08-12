@@ -55,6 +55,7 @@ class Enemy(pg.sprite.Sprite):
             # 35% Chance to drop an Operation Item on death
             if inventory and random.random() < 0.35:
                 from Item import Item
-                inventory.add_item(Item())
+                # Pass world.level so Golden Ball drops starting at Level 4
+                inventory.add_item(Item(current_level=world.level))
                 
             self.kill()
