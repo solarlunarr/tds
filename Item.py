@@ -23,15 +23,15 @@ class Item:
 
     def generate_value(self):
         if self.op_type == '+':
-            return random.randint(2, 10)         # Flat damage boost
+            return random.randint(3, 10)         # Flat damage boost
         elif self.op_type == 'x':
-            return round(random.uniform(1.25, 2), 1) # Damage multiplier
+            return round(random.uniform(1.5, 2.5), 1) # Damage multiplier
         elif self.op_type == '-':
-            return random.randint(1, 10)        # Direct damage to enemy
+            return random.randint(15, 40)        # Direct damage to enemy
         elif self.op_type == '/':
             return 0.5                           # Halves enemy speed
         elif self.op_type == '^':
-            return round(random.uniform(1.05, 1.1), 2) # Exponent power
+            return round(random.uniform(1.2, 1.5), 2) # Exponent power
         elif self.op_type == 'GOLD':
             return 0.75                          # Reduces cooldown by 25% (0.75x attack delay)
         return 1

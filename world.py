@@ -1,3 +1,4 @@
+# world.py
 import pygame as pg
 import random
 import Constants as c
@@ -37,6 +38,9 @@ class World():
             self.waypoints.append((temp_x, temp_y))
 
     def process_enemies(self):
+        if self.level > len(ENEMY_SPAWN_DATA):
+            return
+
         enemies = ENEMY_SPAWN_DATA[self.level - 1]
         boss_count = enemies.get("boss", 0)
         self.boss_incoming = boss_count > 0
@@ -55,7 +59,7 @@ class World():
             self.enemy_list.append("boss")
 
     def check_level_complete(self):
-        if (self.killed_enemies + self.missed_enemies) == len(self.enemy_list):
+        if len(self.enemy_list) > 0 and (self.killed_enemies + self.missed_enemies) == len(self.enemy_list):
             return True
 
     def reset_level(self):
