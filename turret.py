@@ -14,7 +14,7 @@ class Turret(pg.sprite.Sprite):
         self.last_shot = pg.time.get_ticks()
         self.selected = False
         self.target = None
-        self.original_image = pg.image.load("tds/assets/IceTurret.png")
+        self.original_image = pg.image.load("assets/IceTurret.png")
         
         self.tile_x = tile_x
         self.tile_y = tile_y
@@ -46,11 +46,12 @@ class Turret(pg.sprite.Sprite):
         elif item.op_type == '^':
             self.damage = int(round(self.damage ** item.value))
         elif item.op_type == '/':
-            # Division reduces cooldown (halves attack interval = attacks 2x faster)
             self.cooldown = max(100, int(self.cooldown * item.value))
         elif item.op_type == '-':
-            # Subtraction reduces cooldown by flat milliseconds
             self.cooldown = max(100, self.cooldown - int(item.value * 20))
+        elif item.op_type == 'GOLD':
+            # Golden Ball: Reduces turret cooldown directly by 25%
+            self.cooldown = max(100, int(self.cooldown * item.value))
             
         print(f"Turret Upgraded! New Damage: {self.damage}, Cooldown: {self.cooldown}ms")
 

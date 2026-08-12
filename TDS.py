@@ -31,27 +31,37 @@ targeting_item = None
 targeting_slot_index = None
 
 # Images
-map_image = pg.image.load('tds/assets/Map1.png').convert_alpha()
+map_image = pg.image.load('assets/Map1.png').convert_alpha()
 enemy_images = {
-    "weak": pg.image.load('tds/assets/enemy.png').convert_alpha(),
-    "strong": pg.image.load('tds/assets/enemy2.png').convert_alpha()
+    "weak": pg.image.load('assets/enemy.png').convert_alpha(),
+    "strong": pg.image.load('assets/enemy2.png').convert_alpha()
 }
 
-IceTurret = pg.image.load('tds/assets/IceTurret.png').convert_alpha()
-buy_IceTurret_image = pg.image.load('tds/assets/IceTurret.png').convert_alpha()
-cancel_image = pg.image.load('tds/assets/Cancel.png').convert_alpha()
+# Load Boss Asset
+try:
+    boss_image = pg.image.load('assets/boss.png').convert_alpha()
+except:
+    boss_image = pg.image.load('assets/boss.png').convert_alpha()
+boss_image = pg.transform.rotate(boss_image, 90)
+boss_image = pg.transform.scale(boss_image, (90, 90))
+enemy_images["boss"] = boss_image
+
+
+IceTurret = pg.image.load('assets/IceTurret.png').convert_alpha()
+buy_IceTurret_image = pg.image.load('assets/IceTurret.png').convert_alpha()
+cancel_image = pg.image.load('assets/Cancel.png').convert_alpha()
 scaled_cancel = pg.transform.scale(cancel_image, (30,30))
-upgrade_image = pg.image.load('tds/assets/Upgrade.png').convert_alpha()
+upgrade_image = pg.image.load('assets/Upgrade.png').convert_alpha()
 scaled_upgrade = pg.transform.scale(upgrade_image, (100,30))
-start_image = pg.image.load('tds/assets/Start.png').convert_alpha()
+start_image = pg.image.load('assets/Start.png').convert_alpha()
 scaled_start = pg.transform.scale(start_image, (125,50))
-restart_image = pg.image.load('tds/assets/Restart.png').convert_alpha()
+restart_image = pg.image.load('assets/Restart.png').convert_alpha()
 scaled_restart = pg.transform.scale(restart_image, (75,30))
-bullet_image = pg.image.load('tds/assets/Bullet.png').convert_alpha()
-speed_image = pg.image.load('tds/assets/Speed.png').convert_alpha()
+bullet_image = pg.image.load('assets/Bullet.png').convert_alpha()
+speed_image = pg.image.load('assets/Speed 1.png').convert_alpha()
 scaled_speed = pg.transform.scale(speed_image, (125,50))
 
-with open('tds/assets/Map1.tmj') as file:
+with open('assets/Map1.tmj') as file:
     world_data = json.load(file)
 
 text_font = pg.font.SysFont("Consolas", 20, bold=True)
@@ -71,7 +81,10 @@ def display_data():
     draw_text("Health: " + str(world.health), text_font, "grey100", c.WIDTH + 10, 35)
     draw_text("Money: " + str(world.money), text_font, "grey100", c.WIDTH + 10, 60)
 
-    # Turret Info / Upgrade Menu Display
+    if getattr(world, "boss_incoming", False):
+        draw_text("BOSS WAVE", text_font, "red", c.WIDTH + 150, 10)
+
+    # Turret Info Display
     if selected_turret:
         pg.draw.rect(screen, (30, 30, 30), (c.WIDTH + 5, 90, c.SIDE_PANEL - 10, 110), border_radius=6)
         pg.draw.rect(screen, "yellow", (c.WIDTH + 5, 90, c.SIDE_PANEL - 10, 110), width=1, border_radius=6)
@@ -114,7 +127,7 @@ world.process_data()
 turret_group = pg.sprite.Group()
 enemy_group = pg.sprite.Group()
 bullet_group = pg.sprite.Group()
-inventory = Inventory(c.WIDTH + 15, 330, slots=6)
+inventory = Inventory(c.WIDTH + 35, 330, slots=12, cols=4)
 
 # Buttons
 turret_button = Button(c.WIDTH + 30, 210, buy_IceTurret_image, True)
@@ -123,7 +136,7 @@ start_button = Button(c.WIDTH + 175, 10, scaled_start, True)
 restart_button = Button(550, 500, scaled_restart, True)
 speed_button = Button(c.WIDTH + 175, 40, scaled_speed, False)
 
-logo_image = pg.image.load('tds/assets/logo.webp').convert_alpha()
+logo_image = pg.image.load('assets/logo.webp').convert_alpha()
 scaled_logo = pg.transform.scale(logo_image, (125, 200))
 
 dragged_item = None
@@ -146,18 +159,22 @@ while run:
         turret_group.update(enemy_group, world, bullet_image, bullet_group)
         bullet_group.update()
 
-        # Bullet collision
+        # Bullet collisions using take_damage (for armor calculations)
         hits = pg.sprite.groupcollide(enemy_group, bullet_group, False, True)
         for enemy, bullets_hit in hits.items():
             for bullet in bullets_hit:
-                enemy.health -= bullet.damage
+                enemy.take_damage(bullet.damage)
             enemy.check_alive(world, inventory)
 
         if selected_turret:
             selected_turret.selected = True
 
-    # Draw game objects
+    # Draw game objects & Boss Health Bars
     enemy_group.draw(screen)
+    for enemy in enemy_group:
+        if getattr(enemy, "enemy_type", None) == "boss" or enemy.regen > 0:
+            enemy.draw_health_bar(screen)
+
     for turret in turret_group:
         turret.draw(screen)
     bullet_group.draw(screen)
@@ -234,11 +251,9 @@ while run:
             turret_group.empty()
             bullet_group.empty()
 
-    # Drag preview for tower items (+, x, ^)
     if dragged_item:
         dragged_item.draw(screen, pos=pg.mouse.get_pos())
 
-    # Target indicator for enemy items (- and /)
     if targeting_item:
         mouse_p = pg.mouse.get_pos()
         pg.draw.circle(screen, "red", mouse_p, 15, 2)
@@ -259,7 +274,7 @@ while run:
                 for enemy in enemy_group:
                     if enemy.rect.collidepoint(mouse_pos):
                         if targeting_item.op_type == '-':
-                            enemy.health -= targeting_item.value
+                            enemy.take_damage(targeting_item.value)
                             enemy.check_alive(world, inventory)
                         elif targeting_item.op_type == '/':
                             enemy.speed = max(0.5, enemy.speed * targeting_item.value)
@@ -268,10 +283,8 @@ while run:
                         break
 
                 if target_hit:
-                    # Consume item after successful use
                     inventory.slots[targeting_slot_index] = None
 
-                # Cancel targeting mode
                 if targeting_item:
                     targeting_item.is_selected = False
                 targeting_item = None
@@ -284,12 +297,10 @@ while run:
                     if item and item.rect.collidepoint(mouse_pos):
                         clicked_inventory = True
                         if item.op_type in ['-', '/']:
-                            # Enter targeting mode
                             targeting_item = item
                             targeting_slot_index = i
                             item.is_selected = True
                         else:
-                            # Start drag mode for tower upgrades (+, x, ^)
                             dragged_item = item
                             drag_source_index = i
                             item.is_dragging = True
@@ -310,7 +321,6 @@ while run:
                 mouse_pos = pg.mouse.get_pos()
                 applied = False
 
-                # Drop consumable upgrade on existing turret (+, x, ^)
                 for turret in turret_group:
                     if turret.rect.collidepoint(mouse_pos):
                         turret.apply_item(dragged_item)

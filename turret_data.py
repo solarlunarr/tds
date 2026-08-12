@@ -20,7 +20,7 @@ TURRET_DATA = [
     {
         # Level 4
         "range": 180,
-        "cooldown": 1,
+        "cooldown": 800,
         "damage": 30
     }
 ]
