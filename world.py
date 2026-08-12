@@ -17,49 +17,53 @@ class World():
         self.spawned_enemies = 0
         self.killed_enemies = 0
         self.missed_enemies = 0
+        self.boss_incoming = False
 
     def process_data(self):
-        #looks for the relavent data needed
         for layer in self.level_data["layers"]: 
             if layer["name"] == "Stone background":
                 self.tile_map = layer["data"]
-                
             elif layer["name"] == "waypoints":
                 for obj in layer["objects"]:
                     waypoint_data = obj["polyline"]
-                    # Grab the object's base x and y coordinates
                     x_offset = obj.get("x")
                     y_offset = obj.get("y")
-                    # Pass the offsets into process_waypoints
                     self.process_waypoints(waypoint_data, x_offset, y_offset)
                     
     def process_waypoints(self, data, x_offset, y_offset):
-        #iterate through waypoints to find individual sets of x/y coords
         for point in data:
-            # Add the base offset to each point's relative coordinates
             temp_x = point.get("x") + x_offset
             temp_y = point.get("y") + y_offset
             self.waypoints.append((temp_x, temp_y))
 
     def process_enemies(self):
         enemies = ENEMY_SPAWN_DATA[self.level - 1]
+        boss_count = enemies.get("boss", 0)
+        self.boss_incoming = boss_count > 0
+
         for enemy_type in enemies:
+            if enemy_type == "boss":
+                continue
             enemies_to_spawn = enemies[enemy_type]
-            for enemy in range(enemies_to_spawn):
+            for _ in range(enemies_to_spawn):
                 self.enemy_list.append(enemy_type)
-        #now randomize the list to shuffle the enemies
+
         random.shuffle(self.enemy_list)
+
+        # Boss spawns last after all escort enemies
+        for _ in range(boss_count):
+            self.enemy_list.append("boss")
 
     def check_level_complete(self):
         if (self.killed_enemies + self.missed_enemies) == len(self.enemy_list):
             return True
 
     def reset_level(self):
-        #reset enemy variables
         self.enemy_list = []
         self.spawned_enemies = 0
         self.killed_enemies = 0
         self.missed_enemies = 0
+        self.boss_incoming = False
         
     def draw(self, surface):
-        surface.blit(self.image, (0,0))
+        surface.blit(self.image, (0, 0))
