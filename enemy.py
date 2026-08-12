@@ -1,3 +1,4 @@
+# enemy.py
 import pygame as pg
 from pygame.math import Vector2
 import math
@@ -6,11 +7,12 @@ from enemy_data import ENEMY_DATA
 import Constants as c
 
 class Enemy(pg.sprite.Sprite):
-    def __init__(self, enemy_type, waypoints, images):
+    def __init__(self, enemy_type, waypoints, images, turret_group=None):
         pg.sprite.Sprite.__init__(self)
         data = ENEMY_DATA.get(enemy_type)
         self.enemy_type = enemy_type
         self.waypoints = waypoints
+        self.turret_group = turret_group
         self.pos = Vector2(self.waypoints[0])
         self.target_waypoint = 1
         self.health = data["health"]
@@ -28,8 +30,9 @@ class Enemy(pg.sprite.Sprite):
 
     def update(self, world):
         self.move(world)
-        self.rotate()
-        self.regenerate(world)
+        if self.alive():
+            self.rotate()
+            self.regenerate(world)
 
     def take_damage(self, amount):
         reduced = amount * (1 - self.armor)
@@ -57,6 +60,7 @@ class Enemy(pg.sprite.Sprite):
             self.kill()
             world.health -= self.base_damage
             world.missed_enemies += 1
+            return  # Prevent calculation on killed enemy
 
         dist = self.movement.length()
         if dist >= (self.speed * world.game_speed):
