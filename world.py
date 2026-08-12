@@ -22,7 +22,7 @@ class World():
 
     def process_data(self):
         for layer in self.level_data["layers"]: 
-            if layer["name"] == "Stone background":
+            if layer["name"] == "map2":
                 self.tile_map = layer["data"]
             elif layer["name"] == "waypoints":
                 for obj in layer["objects"]:

@@ -32,38 +32,38 @@ targeting_item = None
 targeting_slot_index = None
 
 # Images
-map_image = pg.image.load('assets/Map1.png').convert_alpha()
+map_image = pg.image.load('tds/assets/map2.png').convert_alpha()
 enemy_images = {
-    "weak": pg.image.load('assets/enemy.png').convert_alpha(),
-    "strong": pg.image.load('assets/enemy2.png').convert_alpha()
+    "weak": pg.image.load('tds/assets/enemy.png').convert_alpha(),
+    "strong": pg.image.load('tds/assets/enemy2.png').convert_alpha()
 }
 
 # Load Boss Asset
 try:
-    boss_image = pg.image.load('assets/boss.png').convert_alpha()
+    boss_image = pg.image.load('tds/assets/boss.png').convert_alpha()
 except:
-    boss_image = pg.image.load('assets/boss.png').convert_alpha()
+    boss_image = pg.image.load('tds/assets/boss.png').convert_alpha()
 boss_image = pg.transform.rotate(boss_image, 90)
 boss_image = pg.transform.scale(boss_image, (90, 90))
 enemy_images["boss"] = boss_image
 
-IceTurret = pg.image.load('assets/IceTurret.png').convert_alpha()
-buy_IceTurret_image = pg.image.load('assets/IceTurret.png').convert_alpha()
-cancel_image = pg.image.load('assets/Cancel.png').convert_alpha()
+IceTurret = pg.image.load('tds/assets/IceTurret.png').convert_alpha()
+buy_IceTurret_image = pg.image.load('tds/assets/IceTurret.png').convert_alpha()
+cancel_image = pg.image.load('tds/assets/Cancel.png').convert_alpha()
 scaled_cancel = pg.transform.scale(cancel_image, (30, 30))
-upgrade_image = pg.image.load('assets/Upgrade.png').convert_alpha()
+upgrade_image = pg.image.load('tds/assets/Upgrade.png').convert_alpha()
 scaled_upgrade = pg.transform.scale(upgrade_image, (100, 30))
-start_image = pg.image.load('assets/Start.png').convert_alpha()
+start_image = pg.image.load('tds/assets/Start.png').convert_alpha()
 scaled_start = pg.transform.scale(start_image, (125, 40))
-restart_image = pg.image.load('assets/Restart.png').convert_alpha()
+restart_image = pg.image.load('tds/assets/Restart.png').convert_alpha()
 scaled_restart = pg.transform.scale(restart_image, (100, 35))
-bullet_image = pg.image.load('assets/Bullet.png').convert_alpha()
-speed_image = pg.image.load('assets/Speed 1.png').convert_alpha()
+bullet_image = pg.image.load('tds/assets/Bullet.png').convert_alpha()
+speed_image = pg.image.load('tds/assets/Speed.png').convert_alpha()
 scaled_speed = pg.transform.scale(speed_image, (125, 40))
 
 # Create Sell Button Image (with dynamic fallback if asset missing)
 try:
-    sell_image = pg.image.load('assets/Sell.png').convert_alpha()
+    sell_image = pg.image.load('tds/assets/Sell.png').convert_alpha()
     scaled_sell = pg.transform.scale(sell_image, (100, 30))
 except:
     scaled_sell = pg.Surface((100, 30), pg.SRCALPHA)
@@ -73,10 +73,10 @@ except:
     txt = btn_font.render("SELL", True, (255, 255, 255))
     scaled_sell.blit(txt, txt.get_rect(center=(50, 15)))
 
-logo_image = pg.image.load('assets/logo.webp').convert_alpha()
+logo_image = pg.image.load('tds/assets/logo.webp').convert_alpha()
 scaled_logo = pg.transform.scale(logo_image, (120, 180))
 
-with open('assets/Map1.tmj') as file:
+with open('tds/assets/map2.tmj') as file:
     world_data = json.load(file)
 
 text_font = pg.font.SysFont("Consolas", 16, bold=True)
@@ -123,7 +123,7 @@ def create_turret(mouse_pos):
     mouse_tile_x = mouse_pos[0] // c.TILE_SIZE
     mouse_tile_y = mouse_pos[1] // c.TILE_SIZE
     mouse_tile_num = ((mouse_tile_y * c.COLS) + mouse_tile_x)
-    if world.tile_map[mouse_tile_num] == 3823:
+    if world.tile_map[mouse_tile_num] != 481:
         space_is_free = True
         for turret in turret_group:
             if (mouse_tile_x, mouse_tile_y) == (turret.tile_x, turret.tile_y):

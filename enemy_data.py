@@ -1,35 +1,35 @@
 ENEMY_SPAWN_DATA = [
     {
         # Level 1
-        "weak": 15,
+        "weak": 10,
         "strong": 0
     },
     {
         # Level 2
-        "weak": 30,
+        "weak": 10,
         "strong": 5
     },
     {
         # Level 3
-        "weak": 30,
+        "weak": 20,
         "strong": 10
     },
     {
         # Level 4
-        "weak": 30,
+        "weak": 20,
         "strong": 25
     },
     {
         # Level 5 - Final Boss Level
-        "weak": 15,
-        "strong": 15,
+        "weak": 30,
+        "strong": 30,
         "boss": 1
     }
 ]
 
 ENEMY_DATA = {
     "weak": {
-        "health": 2,
+        "health": 5,
         "speed": 3,
         "damage": 25,
         "armor": 0,
@@ -37,7 +37,7 @@ ENEMY_DATA = {
         "reward": 25
     },
     "strong": {
-        "health": 5,
+        "health": 25,
         "speed": 2,
         "damage": 25,
         "armor": 0,
@@ -45,7 +45,7 @@ ENEMY_DATA = {
         "reward": 25
     },
     "boss": {
-        "health": 30,
+        "health": 100000,
         "speed": 1,
         "damage": 55,
         "armor": 0,
