@@ -1,4 +1,5 @@
 import pygame as pg
+import random
 from pygame.math import Vector2
 import math
 from enemy_data import ENEMY_DATA
@@ -58,4 +59,8 @@ class Enemy(pg.sprite.Sprite):
     if self.health <= 0:
       world.killed_enemies +=1
       world.money += c.KILL_REWARD
+      if random.random() < 0.4:
+        value = str(random.choice([1,2,3,4,5,6,7,8,9,'+','-','*','/']))
+        print("you got loot!")
+        world.pending_drops.append((self.rect.centerx, self.rect.centery, value))
       self.kill()

@@ -83,4 +83,16 @@ class Turret(pg.sprite.Sprite):
         self.range_rect = self.range_image.get_rect()
         self.range_rect.center = self.rect.center
     
-    #def mechanic(self):
+    # def apply_math(self, operator):
+    #     if operator == '+':
+    #         self.damage += 5
+    #     elif operator == '-':
+    #         # Reduces cooldown delay (attacks faster)
+    #         self.cooldown = max(100, self.cooldown - 200) 
+    #     elif operator == 'x':
+    #         self.damage = int(self.damage * 1.5)
+    #     elif operator == '/':
+    #         self.cooldown = max(100, int(self.cooldown * 0.7)) # 30% faster fire rate
+    #     elif operator == '^':
+    #         self.damage = self.damage ** 2
+    #     print(f"Turret Upgraded! Damage: {self.damage}, Cooldown: {self.cooldown}ms"

@@ -17,6 +17,7 @@ class World():
         self.spawned_enemies = 0
         self.killed_enemies = 0
         self.missed_enemies = 0
+        self.pending_drops = []
 
     def process_data(self):
         #looks for the relavent data needed
@@ -42,7 +43,6 @@ class World():
             self.waypoints.append((temp_x, temp_y))
 
     def process_enemies(self):
-        
         if ENEMY_SPAWN_DATA[0] == 0:
             game_outcome = 1
         enemies = ENEMY_SPAWN_DATA[self.level - 1]
