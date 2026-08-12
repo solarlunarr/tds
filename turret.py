@@ -10,25 +10,25 @@ class Turret(pg.sprite.Sprite):
         self.upgrade_level = 1
         self.range = TURRET_DATA[self.upgrade_level - 1].get("range")
         self.cooldown = TURRET_DATA[self.upgrade_level - 1].get("cooldown")
-        self.dmg = TURRET_DATA[self.upgrade_level - 1].get("damage")
+        self.damage = TURRET_DATA[self.upgrade_level - 1].get("damage", 10)
         self.last_shot = pg.time.get_ticks()
         self.selected = False
         self.target = None
-        self.original_image = pg.image.load("tds/assets/IceTurret.png")
-        #position variables ------------------------------------------
+        self.original_image = pg.image.load("assets/IceTurret.png")
+        
         self.tile_x = tile_x
         self.tile_y = tile_y
-        #calculate center coordinates --------------------------------
         self.x = (self.tile_x + 0.5) * c.TILE_SIZE
-        self.y = (self.tile_y + 0.5 ) * c.TILE_SIZE
+        self.y = (self.tile_y + 0.5) * c.TILE_SIZE
 
-        #update image
         self.angle = 90
         self.image = pg.transform.rotate(self.original_image, self.angle)
         self.rect = self.image.get_rect()
         self.rect.center = (self.x, self.y)
 
-        #create transparent circle showing range
+        self.rebuild_range_circle()
+
+    def rebuild_range_circle(self):
         self.range_image = pg.Surface((self.range * 2, self.range * 2))
         self.range_image.fill((0, 0, 0))
         self.range_image.set_colorkey((0, 0, 0))
@@ -36,6 +36,23 @@ class Turret(pg.sprite.Sprite):
         self.range_image.set_alpha(100)
         self.range_rect = self.range_image.get_rect()
         self.range_rect.center = self.rect.center
+
+    def apply_item(self, item):
+        """Upgrades this existing turret directly."""
+        if item.op_type == '+':
+            self.damage += item.value
+        elif item.op_type == 'x':
+            self.damage = int(self.damage * item.value)
+        elif item.op_type == '^':
+            self.damage = int(round(self.damage ** item.value))
+        elif item.op_type == '/':
+            # Division reduces cooldown (halves attack interval = attacks 2x faster)
+            self.cooldown = max(100, int(self.cooldown * item.value))
+        elif item.op_type == '-':
+            # Subtraction reduces cooldown by flat milliseconds
+            self.cooldown = max(100, self.cooldown - int(item.value * 20))
+            
+        print(f"Turret Upgraded! New Damage: {self.damage}, Cooldown: {self.cooldown}ms")
 
     def draw(self, surface):
         self.image = pg.transform.rotate(self.original_image, self.angle - 90)
@@ -49,12 +66,7 @@ class Turret(pg.sprite.Sprite):
         if pg.time.get_ticks() - self.last_shot > (self.cooldown / world.game_speed):
             self.pick_target(enemy_group, bullet_image, bullet_group)
 
-
     def pick_target(self, enemy_group, bullet_image, bullet_group):
-      #find an enemy to target
-        x_dist = 0
-        y_dist = 0
-     #check distance to each enemy to see if it is in range
         for enemy in enemy_group:
             if enemy.health > 0:
                 x_dist = enemy.pos[0] - self.x
@@ -63,24 +75,18 @@ class Turret(pg.sprite.Sprite):
                 if dist < self.range:
                     self.target = enemy
                     self.angle = math.degrees(math.atan2(-y_dist, x_dist))
-                    #spawn bullet
-                    new_bullet = Bullet(bullet_image, self.x, self.y, self.target.pos, self.dmg)
+                    
+                    new_bullet = Bullet(bullet_image, self.x, self.y, self.target.pos, self.damage)
                     bullet_group.add(new_bullet)
+                    
                     self.last_shot = pg.time.get_ticks()
                     break
 
     def upgrade(self):
-        self.upgrade_level +=1
-        self.range = TURRET_DATA[self.upgrade_level - 1].get("range")
-        self.cooldown = TURRET_DATA[self.upgrade_level - 1].get("cooldown")
-        self.dmg = TURRET_DATA[self.upgrade_level - 1].get("damage")
-        #draw new transparent circle showing range
-        self.range_image = pg.Surface((self.range * 2, self.range * 2))
-        self.range_image.fill((0, 0, 0))
-        self.range_image.set_colorkey((0, 0, 0))
-        pg.draw.circle(self.range_image, "grey100", (self.range, self.range), self.range)
-        self.range_image.set_alpha(100)
-        self.range_rect = self.range_image.get_rect()
-        self.range_rect.center = self.rect.center
-    
-    #def mechanic(self):
+        if self.upgrade_level < len(TURRET_DATA):
+            self.upgrade_level += 1
+            data = TURRET_DATA[self.upgrade_level - 1]
+            self.range = data.get("range", self.range)
+            self.cooldown = data.get("cooldown", self.cooldown)
+            self.damage = data.get("damage", self.damage)
+            self.rebuild_range_circle()
