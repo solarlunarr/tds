@@ -1,3 +1,7 @@
+'''
+Massive thanks to Coding with Russ's video https://youtu.be/WRuf9iPAXfM?si=EzAuJXg-UUN4lpym 
+'''
+
 import pygame as pg
 import json
 from pygame.locals import *
@@ -27,22 +31,27 @@ targeting_item = None
 targeting_slot_index = None
 
 # Images
-map_image = pg.image.load('assets/Map1.png').convert_alpha()
+map_image = pg.image.load('tds/assets/Map1.png').convert_alpha()
 enemy_images = {
-    "weak": pg.image.load('assets/enemy.png').convert_alpha(),
-    "strong": pg.image.load('assets/enemy2.png').convert_alpha()
+    "weak": pg.image.load('tds/assets/enemy.png').convert_alpha(),
+    "strong": pg.image.load('tds/assets/enemy2.png').convert_alpha()
 }
 
-IceTurret = pg.image.load('assets/IceTurret.png').convert_alpha()
-buy_turret_image = pg.image.load('assets/IceTurret.png').convert_alpha()
-cancel_image = pg.image.load('assets/Cancel.png').convert_alpha()
-upgrade_image = pg.image.load('assets/Upgrade.png').convert_alpha()
-start_image = pg.image.load('assets/Start.png').convert_alpha()
-restart_image = pg.image.load('assets/Restart.png').convert_alpha()
-bullet_image = pg.image.load('assets/Bullet.png').convert_alpha()
-speed_image = pg.image.load('assets/Speed.png').convert_alpha()
+IceTurret = pg.image.load('tds/assets/IceTurret.png').convert_alpha()
+buy_IceTurret_image = pg.image.load('tds/assets/IceTurret.png').convert_alpha()
+cancel_image = pg.image.load('tds/assets/Cancel.png').convert_alpha()
+scaled_cancel = pg.transform.scale(cancel_image, (30,30))
+upgrade_image = pg.image.load('tds/assets/Upgrade.png').convert_alpha()
+scaled_upgrade = pg.transform.scale(upgrade_image, (100,30))
+start_image = pg.image.load('tds/assets/Start.png').convert_alpha()
+scaled_start = pg.transform.scale(start_image, (125,50))
+restart_image = pg.image.load('tds/assets/Restart.png').convert_alpha()
+scaled_restart = pg.transform.scale(restart_image, (75,30))
+bullet_image = pg.image.load('tds/assets/Bullet.png').convert_alpha()
+speed_image = pg.image.load('tds/assets/Speed.png').convert_alpha()
+scaled_speed = pg.transform.scale(speed_image, (125,50))
 
-with open('assets/Map1.tmj') as file:
+with open('tds/assets/Map1.tmj') as file:
     world_data = json.load(file)
 
 text_font = pg.font.SysFont("Consolas", 20, bold=True)
@@ -108,14 +117,13 @@ bullet_group = pg.sprite.Group()
 inventory = Inventory(c.WIDTH + 15, 330, slots=6)
 
 # Buttons
-turret_button = Button(c.WIDTH + 30, 210, buy_turret_image, True)
-cancel_button = Button(c.WIDTH + 90, 250, cancel_image, True)
-upgrade_button = Button(c.WIDTH + 5, 250, upgrade_image, True)
-start_button = Button(c.WIDTH + 175, 10, start_image, True)
-restart_button = Button(550, 500, restart_image, True)
-speed_button = Button(c.WIDTH + 175, 40, speed_image, False)
+turret_button = Button(c.WIDTH + 30, 210, buy_IceTurret_image, True)
+cancel_button = Button(c.WIDTH + 90, 250, scaled_cancel, True)
+start_button = Button(c.WIDTH + 175, 10, scaled_start, True)
+restart_button = Button(550, 500, scaled_restart, True)
+speed_button = Button(c.WIDTH + 175, 40, scaled_speed, False)
 
-logo_image = pg.image.load('assets/logo.webp').convert_alpha()
+logo_image = pg.image.load('tds/assets/logo.webp').convert_alpha()
 scaled_logo = pg.transform.scale(logo_image, (125, 200))
 
 dragged_item = None
@@ -199,6 +207,7 @@ while run:
 
         if selected_turret and selected_turret.upgrade_level < c.TURRET_LEVELS:
             draw_text(str(c.UPGRADE_COST), text_font, "grey100", c.WIDTH + 110, 270)
+            upgrade_button = Button(c.WIDTH + 175, 240, scaled_upgrade, False)
             if upgrade_button.draw(screen):
                 if world.money >= c.UPGRADE_COST:
                     selected_turret.upgrade()

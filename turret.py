@@ -14,7 +14,7 @@ class Turret(pg.sprite.Sprite):
         self.last_shot = pg.time.get_ticks()
         self.selected = False
         self.target = None
-        self.original_image = pg.image.load("assets/IceTurret.png")
+        self.original_image = pg.image.load("tds/assets/IceTurret.png")
         
         self.tile_x = tile_x
         self.tile_y = tile_y
