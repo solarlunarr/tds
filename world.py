@@ -58,9 +58,12 @@ class World():
         for _ in range(boss_count):
             self.enemy_list.append("boss")
 
-    def check_level_complete(self):
-        if len(self.enemy_list) > 0 and (self.killed_enemies + self.missed_enemies) == len(self.enemy_list):
-            return True
+    def check_level_complete(self, enemy_group=None):
+        """Returns True only when all wave enemies have spawned AND no enemies remain on screen."""
+        if len(self.enemy_list) > 0 and self.spawned_enemies >= len(self.enemy_list):
+            if enemy_group is None or len(enemy_group) == 0:
+                return True
+        return False
 
     def reset_level(self):
         self.enemy_list = []

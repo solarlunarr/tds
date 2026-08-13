@@ -1,3 +1,4 @@
+# turret.py
 import pygame as pg
 import Constants as c
 import math
@@ -5,6 +6,14 @@ from turret_data import TURRET_DATA
 from bullet import Bullet
 
 class Turret(pg.sprite.Sprite):
+
+    DAMAGE_CAPS = {
+        1: 250,
+        2: 2000,
+        3: 5000,
+        4: 75000
+    }
+
     def __init__(self, image, tile_x, tile_y):
         pg.sprite.Sprite.__init__(self)
         self.upgrade_level = 1
@@ -15,6 +24,7 @@ class Turret(pg.sprite.Sprite):
         self.selected = False
         self.target = None
         self.original_image = pg.image.load("tds/assets/IceTurret.png")
+        self.stunned_until = 0  # Timestamp until which turret is stunned
         
         self.tile_x = tile_x
         self.tile_y = tile_y
@@ -50,20 +60,36 @@ class Turret(pg.sprite.Sprite):
         elif item.op_type == '-':
             self.cooldown = max(100, self.cooldown - int(item.value * 20))
         elif item.op_type == 'GOLD':
-            # Golden Ball: Reduces turret cooldown directly by 25%
             self.cooldown = max(100, int(self.cooldown * item.value))
             
         print(f"Turret Upgraded! New Damage: {self.damage}, Cooldown: {self.cooldown}ms")
+
+        current_cap = self.DAMAGE_CAPS.get(self.upgrade_level, 75000)
+        if self.damage > current_cap:
+            self.damage = current_cap
 
     def draw(self, surface):
         self.image = pg.transform.rotate(self.original_image, self.angle - 90)
         self.rect = self.image.get_rect()
         self.rect.center = (self.x, self.y)
         surface.blit(self.image, self.rect)
+
         if self.selected:
             surface.blit(self.range_image, self.range_rect)
 
+        # Draw Stun Visuals
+        if pg.time.get_ticks() < self.stunned_until:
+            pg.draw.circle(surface, (255, 215, 0), (int(self.x), int(self.y)), 20, 2)
+            font = pg.font.SysFont("Consolas", 11, bold=True)
+            txt_surf = font.render("STUNNED!", True, (255, 215, 0))
+            txt_rect = txt_surf.get_rect(center=(self.x, self.y - 22))
+            surface.blit(txt_surf, txt_rect)
+
     def update(self, enemy_group, world, bullet_image, bullet_group):
+        # Skip firing logic when stunned
+        if pg.time.get_ticks() < self.stunned_until:
+            return
+
         if pg.time.get_ticks() - self.last_shot > (self.cooldown / world.game_speed):
             self.pick_target(enemy_group, bullet_image, bullet_group)
 
@@ -91,3 +117,7 @@ class Turret(pg.sprite.Sprite):
             self.cooldown = data.get("cooldown", self.cooldown)
             self.damage = data.get("damage", self.damage)
             self.rebuild_range_circle()
+
+            current_cap = self.DAMAGE_CAPS.get(self.upgrade_level, 75000)
+            if self.damage > current_cap:
+                self.damage = current_cap

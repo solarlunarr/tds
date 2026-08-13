@@ -1,6 +1,7 @@
 import pygame as pg
 import random
 import Constants as c
+from enemy import Enemy
 
 OPERATORS = ['+', 'x', '-', '/', '^']
 
@@ -23,11 +24,11 @@ class Item:
 
     def generate_value(self):
         if self.op_type == '+':
-            return random.randint(2,10)         # Flat damage boost
+            return random.randint(2, 10)         # Flat damage boost
         elif self.op_type == 'x':
             return round(random.uniform(1.2, 2), 1) # Damage multiplier
-        elif self.op_type == '-':
-            return random.randint(2, 10)        # Direct damage to enemy
+        elif self.op_type == '%':
+            return random.randint(2, 10)      # Direct damage to enemy
         elif self.op_type == '/':
             return 0.5                           # Halves enemy speed
         elif self.op_type == '^':
@@ -47,17 +48,14 @@ class Item:
         draw_rect = self.rect if pos is None else pg.Rect(pos[0] - 22, pos[1] - 22, 45, 45)
 
         if self.op_type == 'GOLD':
-            # Card Background & Border
             pg.draw.rect(surface, (40, 35, 10), draw_rect, border_radius=6)
             border_color = "yellow" if self.is_selected else (255, 215, 0)
             pg.draw.rect(surface, border_color, draw_rect, width=2, border_radius=6)
 
-            # Golden Ball Graphic
             center = draw_rect.center
-            pg.draw.circle(surface, (255, 215, 0), center, 15)           # Outer Gold Ball
-            pg.draw.circle(surface, (255, 245, 180), (center[0] - 4, center[1] - 4), 4) # Shine Reflection
+            pg.draw.circle(surface, (255, 215, 0), center, 15)
+            pg.draw.circle(surface, (255, 245, 180), (center[0] - 4, center[1] - 4), 4)
 
-            # Text Overlay
             txt_surf = self.font.render("-CD", True, (60, 40, 0))
             txt_rect = txt_surf.get_rect(center=center)
             surface.blit(txt_surf, txt_rect)
@@ -87,7 +85,8 @@ class Inventory:
         self.x = x
         self.y = y
         self.cols = cols
-        self.slots = [None] * slots
+        self.total_slots = slots
+        self.slots = [None] * self.total_slots
 
     def add_item(self, item):
         for i in range(len(self.slots)):
@@ -116,4 +115,5 @@ class Inventory:
                 item.draw(surface)
 
     def restart(self):
-        self.slots.clear()
+        # Reset slots back to empty slot array instead of clear()
+        self.slots = [None] * self.total_slots

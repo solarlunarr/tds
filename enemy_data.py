@@ -29,27 +29,27 @@ ENEMY_SPAWN_DATA = [
 
 ENEMY_DATA = {
     "weak": {
-        "health": 5,
-        "speed": 3,
-        "damage": 25,
+        "health": 20,
+        "speed": 2.8,
+        "damage": 10,
         "armor": 0,
         "regen": 0,
         "reward": 25
     },
     "strong": {
-        "health": 25,
+        "health": 65,
         "speed": 2,
-        "damage": 25,
-        "armor": 0,
+        "damage": 20,
+        "armor": 0.10,
         "regen": 0,
-        "reward": 50
+        "reward": 55
     },
     "boss": {
-        "health": 250000,
+        "health": 1000000,
         "speed": 1,
         "damage": 100,
-        "armor": 0,
-        "regen": 0.06,
-        "reward": 100
+        "armor": 0.25,
+        "regen": 0.10,
+        "reward": 2500
     }
 }
