@@ -17,6 +17,18 @@ class Enemy(pg.sprite.Sprite):
         self.target_waypoint = 1
         self.health = data["health"]
         self.max_health = data["health"]
+
+        #HP scaling
+        if self.turret_group and len(self.turret_group) > 0:
+            max_turret_damage = max(t.damage for t in self.turret_group)
+            THRESHOLD_PCT = 2
+            if self.enemy_type != "boss":
+                if max_turret_damage > (self.max_health * THRESHOLD_PCT):
+                    scaled_health = int(max_turret_damage / (THRESHOLD_PCT/4))
+                    self.health = scaled_health
+                    self.max_health = scaled_health
+                    print(f"scaled hp: {scaled_health}")
+
         self.speed = data["speed"]
         self.armor = data.get("armor", 0)
         self.regen = data.get("regen", 0)
