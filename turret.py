@@ -5,6 +5,14 @@ from turret_data import TURRET_DATA
 from bullet import Bullet
 
 class Turret(pg.sprite.Sprite):
+
+    DAMAGE_CAPS = {
+        1: 250,
+        2: 2000,
+        3: 5000,
+        4: 999999999999
+    }
+
     def __init__(self, image, tile_x, tile_y):
         pg.sprite.Sprite.__init__(self)
         self.upgrade_level = 1
@@ -55,6 +63,13 @@ class Turret(pg.sprite.Sprite):
             
         print(f"Turret Upgraded! New Damage: {self.damage}, Cooldown: {self.cooldown}ms")
 
+        #Damage cap
+        current_cap = self.DAMAGE_CAPS.get(self.upgrade_level, 999999999999)
+        #enforce the damage cap
+        if self.damage > current_cap:
+            self.damage = current_cap
+            print(f"damage has been capped to {current_cap} for level {self.upgrade_level}. Please level up")
+
     def draw(self, surface):
         self.image = pg.transform.rotate(self.original_image, self.angle - 90)
         self.rect = self.image.get_rect()
@@ -91,3 +106,9 @@ class Turret(pg.sprite.Sprite):
             self.cooldown = data.get("cooldown", self.cooldown)
             self.damage = data.get("damage", self.damage)
             self.rebuild_range_circle()
+
+
+            current_cap = self.DAMAGE_CAPS.get(self.upgrade_level, 999999999999)
+            if self.damage > current_cap:
+                self.damage = current_cap
+                
