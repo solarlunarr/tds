@@ -42,14 +42,14 @@ ENEMY_DATA = {
         "damage": 25,
         "armor": 0,
         "regen": 0,
-        "reward": 25
+        "reward": 50
     },
     "boss": {
-        "health": 100000,
+        "health": 250000,
         "speed": 1,
-        "damage": 55,
+        "damage": 100,
         "armor": 0,
-        "regen": 0.057,
+        "regen": 0.06,
         "reward": 100
     }
 }

@@ -34,7 +34,7 @@ targeting_slot_index = None
 # Images
 map_image = pg.image.load('tds/assets/map2.png').convert_alpha()
 enemy_images = {
-    "weak": pg.image.load('tds/assets/enemy.png').convert_alpha(),
+    "weak": pg.image.load('tds/assets/slime.png').convert_alpha(),
     "strong": pg.image.load('tds/assets/enemy2.png').convert_alpha()
 }
 
@@ -117,13 +117,13 @@ def display_data():
         draw_text(f"Cost: ${c.BUY_COST}", text_font, (80, 220, 120), c.WIDTH + 80, 145)
 
     # Bottom Logo
-    screen.blit(scaled_logo, (c.WIDTH + (c.SIDE_PANEL - 120) // 2, 500))
+    screen.blit(scaled_logo, (c.WIDTH + (c.SIDE_PANEL - 120) // 2, 700))
 
 def create_turret(mouse_pos):
     mouse_tile_x = mouse_pos[0] // c.TILE_SIZE
     mouse_tile_y = mouse_pos[1] // c.TILE_SIZE
     mouse_tile_num = ((mouse_tile_y * c.COLS) + mouse_tile_x)
-    if world.tile_map[mouse_tile_num] != 481:
+    if world.tile_map[mouse_tile_num] != 482:
         space_is_free = True
         for turret in turret_group:
             if (mouse_tile_x, mouse_tile_y) == (turret.tile_x, turret.tile_y):
@@ -161,7 +161,7 @@ upgrade_button = Button(c.WIDTH + 25, 190, scaled_upgrade, True)
 sell_button = Button(c.WIDTH + 160, 190, scaled_sell, True)
 
 start_button = Button(c.WIDTH + 160, 12, scaled_start, True)
-restart_button = Button(550, 500, scaled_restart, True)
+restart_button = Button(560, 490, scaled_restart, True)
 speed_button = Button(c.WIDTH + 160, 12, scaled_speed, False)
 
 dragged_item = None
@@ -272,8 +272,8 @@ while run:
         if game_outcome == -1:
             draw_text("GAME OVER", large_font, (240, 80, 80), 550, 380)
         elif game_outcome == 1:
-            draw_text("DEMO COMPLETED!", large_font, (80, 220, 120), 480, 380)
-
+            draw_text("DEMO COMPLETED", large_font, (80, 220, 120), 500, 360)
+            draw_text("Thank you for playing!", large_font, (80, 220, 120), 440, 390)
         if restart_button.draw(screen):
             game_over = False
             level_started = False
@@ -287,7 +287,7 @@ while run:
             enemy_group.empty()
             turret_group.empty()
             bullet_group.empty()
-
+            inventory.restart()
     if dragged_item:
         dragged_item.draw(screen, pos=pg.mouse.get_pos())
 

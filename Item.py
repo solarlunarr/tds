@@ -114,3 +114,6 @@ class Inventory:
             if item and not item.is_dragging:
                 item.rect.topleft = (slot_x + 1, slot_y + 1)
                 item.draw(surface)
+
+    def restart(self):
+        self.slots.clear()
